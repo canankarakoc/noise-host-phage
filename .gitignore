@@ -1,0 +1,16 @@
+# R / RStudio
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+Rplots.pdf
+
+# macOS
+.DS_Store
+
+# Data stay local until publication; keep only the description
+data/*
+!data/README.md
+
+# Growth-curve fit plots made from the local data
+figures/
