@@ -32,29 +32,33 @@ Manuscript in preparation; not yet published. The citation will be added here wh
 - `white.kan.mean2.sd1.txt` and `red.kan.mean2.sd1.c0.8.txt`: the same series as the daily volume (µl) of 1 mg/ml kanamycin stock added to each 6 ml culture.
 - `redified_mean2_sd1_weight2.txt` and `red.kan.mean2.sd1.w2.txt`: an alternative red-noise series (fixed weighting instead of fixed autocorrelation) that was generated but not used.
 
-It also prints the six constant concentrations.
+It also prints the six constant concentrations. The constant patches C1 to C6 received the minimum, first quartile, median, mean, third quartile and maximum, in that order.
 
-`noise_main.R`, from top to bottom:
+`analysis/` holds the analysis, five scripts run in order (`analysis/README.md` has the details):
 
-1. **Growth**: blanks the plate-reader OD, fits Gompertz, Baranyi, logistic and Weibull growth models to each clone (`growthrates`), keeps the best model by AIC, drops poor fits (RMSE > 0.1), and compares generation time, carrying capacity and lag with the ancestor. One plot per fitted curve (about 400) is saved to `figures/`.
-2. **Phage sensitivity**: the difference in area under the growth curve without and with phage.
-3. **Competitive fitness**: the selection coefficient of evolved clones against REL606.
-4. **Kanamycin resistance**: MICs from the plate dilution assay (with quality filters) and from gradient test strips.
-5. **Population dynamics**: bacterial and phage densities over time, time to phage extinction, variability of bacterial density (CV), and the correlation between phage and bacterial densities, tested with linear, mixed-effects and permutation models.
+1. **`01_traits.R`**: competitive fitness (selection coefficient against REL606), kanamycin MICs from the plate assay (with quality filters; clones not inhibited at 256 µg/ml are kept as right-censored) and from gradient strips, phage sensitivity (difference in area under the growth curve without and with phage), and bacterial and phage densities on the days they were measured.
+2. **`02_growth.R`**: generation time and carrying capacity from the blanked OD curves, with one model-free estimator for every curve and logistic and Gompertz fits as a check.
+3. **`03_models.R`**: a noise × dispersal model for every response, with a random intercept for microcosm where clones are the unit, type III F tests (Kenward-Roger), marginal means and Tukey contrasts within each dispersal treatment, and red versus white paired by patch.
+4. **`04_verify.R`**: robustness checks: red versus white blocked by patch, day-30-only refits, the uncontaminated dispersal subset, and effect sizes.
+5. **`05_figures.R`**: the manuscript and supplementary figures, written to `figures/`.
 
-Four day-30 populations (white noise, isolation, patches 3-6) were contaminated, so their day-24 clones are used instead. Objects ending in `_ALL` pool days 24 and 30.
+Four day-30 populations (white noise, isolation, patches 3-6; m15-m18) were contaminated. The primary analysis uses day 30 with their day-24 clones standing in, and `04_verify.R` repeats the key tests with day-30 data only.
 
 ## How to run
 
-Last run in October 2026 with R 4.6.0, growthrates 0.8.5, tidyverse 2.0.0, ggpubr 1.0.0, pracma 2.4.6, zoo 1.8.15, lme4 2.0.1, lmerTest 3.2.1, lmPerm 2.1.6 and truncnorm 1.0.9.
+Last run in November 2026 with R 4.6.0, dplyr 1.2.1, tidyr 1.3.2, readr 2.2.0, purrr 1.2.2, pracma 2.4.6, lme4 2.0.1, lmerTest 3.2.1, pbkrtest 0.5.5, emmeans 2.0.3, car 3.1.5, ggplot2 4.0.3 and patchwork 1.3.2. `scenarios.R` also needs tidyverse and truncnorm.
 
 ```r
-install.packages(c("growthrates", "tidyverse", "ggpubr", "pracma", "zoo", "lme4", "lmerTest", "lmPerm", "truncnorm"))
+install.packages(c("dplyr", "tidyr", "readr", "purrr", "pracma", "lme4", "lmerTest",
+                   "pbkrtest", "emmeans", "car", "ggplot2", "patchwork",
+                   "tidyverse", "truncnorm"))
 ```
 
 1. `scenarios.R` needs no data. Set the working directory to the repository folder and run it.
 2. For the analysis, put the data files in `data/` (see Data availability). `data/README.md` describes them.
-3. Run `noise_main.R` from the repository folder, top to bottom. It takes a few minutes. The composite figures are `figure3` (growth and phage sensitivity) and `figure_Stab` (dynamics); the fitness and MIC panels are `selection`, `micPlot` and `micPlot_stripe`.
+3. From the repository folder, run `analysis/01_traits.R` to `analysis/05_figures.R` in order. Together they take under a minute. Tables go to `results/` and figures to `figures/`.
+
+The original single-script analysis (`noise_main.R`) was replaced by `analysis/` in November 2026. It is still in the git history.
 
 ## Data availability
 

@@ -12,5 +12,6 @@ Rplots.pdf
 data/*
 !data/README.md
 
-# Growth-curve fit plots made from the local data
+# Tables and figures made from the local data stay local too
+results/
 figures/
